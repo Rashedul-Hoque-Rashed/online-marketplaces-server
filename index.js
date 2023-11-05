@@ -30,6 +30,12 @@ async function run() {
 
     const jobsCollections = client.db("jobsDB").collection('jobs');
     
+    app.get("/api/v1/jobs", async (req, res) => {
+        const query = {employerEmail: req.query.email};
+        const result = await jobsCollections.find(query).toArray();
+        res.send(result);
+    })
+
     app.post("/api/v1/jobs", async (req, res) => {
         const newJobs = req.body;
         const result = await jobsCollections.insertOne(newJobs);
