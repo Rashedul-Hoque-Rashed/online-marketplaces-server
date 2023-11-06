@@ -100,6 +100,12 @@ async function run() {
             res.send(result);
         })
 
+        app.get("/api/v1/bids-request", async (req, res) => {
+            const query = { buyerEmail: req.query.email };
+            const result = await bidsCollections.find(query).toArray();
+            res.send(result);
+        })
+
         app.post("/api/v1/bids", async (req, res) => {
             const newBids = req.body;
             const result = await bidsCollections.insertOne(newBids);
