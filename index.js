@@ -29,9 +29,10 @@ async function run() {
         await client.connect();
 
         const jobsCollections = client.db("jobsDB").collection('jobs');
+        const bidsCollections = client.db("jobsDB").collection('bids');
 
         app.get("/api/v1/jobs", async (req, res) => {
-            const query = { employerEmail: req.query.email };
+            const query = { buyerEmail: req.query.email };
             const result = await jobsCollections.find(query).toArray();
             res.send(result);
         });
@@ -86,10 +87,22 @@ async function run() {
             res.send(result);
         })
 
-        app.delete("/api/v1/jobs/:id", async (res, req) => {
+        app.delete("/api/v1/jobs/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await jobsCollections.deleteOne(query);
+            res.send(result);
+        })
+
+        app.get("/api/v1/bids", async (req, res) => {
+            const query = { sellerEmail: req.query.email };
+            const result = await bidsCollections.find(query).toArray();
+            res.send(result);
+        })
+
+        app.post("/api/v1/bids", async (req, res) => {
+            const newBids = req.body;
+            const result = await bidsCollections.insertOne(newBids);
             res.send(result);
         })
 
