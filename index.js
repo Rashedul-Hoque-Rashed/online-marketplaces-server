@@ -64,10 +64,10 @@ async function run() {
         });
 
         app.get("/api/v1/jobs/:id", async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await jobsCollections.findOne(query);
-            res.send(result);
+                const id = req.params.id;
+                const query = { _id: new ObjectId(id) };
+                const result = await jobsCollections.findOne(query);
+                res.send(result);
         });
 
         app.get("/api/v1/tab1", async (req, res) => {
@@ -138,23 +138,30 @@ async function run() {
             res.send(result);
         })
 
-        app.get("/api/v1/bids", async (req, res) => {
-            const sortObj = {};
-            const sortField = req.query.sortField;
-            const sortOrder = req.query.sortOrder;
-            const customSortOrder = ["pending", "cancel", "in progress", "complete"];
-            if (sortField && sortOrder) {
-                sortObj[sortField] = sortOrder;
+        app.get("/api/v1/bids", verifyToken, async (req, res) => {
+            if (req.user.email !== req.query.email) {
+                return res.status(403).send({ message: 'forbidden access' })
+            } else {
+                const sortObj = {};
+                const sortField = req.query.sortField;
+                const sortOrder = req.query.sortOrder;
+                if (sortField && sortOrder) {
+                    sortObj[sortField] = sortOrder;
+                }
+                const query = { sellerEmail: req.query.email };
+                const result = await bidsCollections.find(query).sort(sortObj).toArray();
+                res.send(result);
             }
-            const query = { sellerEmail: req.query.email };
-            const result = await bidsCollections.find(query).sort(sortObj).toArray();
-            res.send(result);
         })
 
-        app.get("/api/v1/bids-request", async (req, res) => {
-            const query = { buyerEmail: req.query.email };
-            const result = await bidsCollections.find(query).toArray();
-            res.send(result);
+        app.get("/api/v1/bids-request", verifyToken, async (req, res) => {
+            if (req.user.email !== req.query.email) {
+                return res.status(403).send({ message: 'forbidden access' })
+            } else {
+                const query = { buyerEmail: req.query.email };
+                const result = await bidsCollections.find(query).toArray();
+                res.send(result);
+            }
         })
 
         app.post("/api/v1/bids", async (req, res) => {
