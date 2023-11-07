@@ -95,8 +95,14 @@ async function run() {
         })
 
         app.get("/api/v1/bids", async (req, res) => {
+            const sortObj = {};
+            const sortField = req.query.sortField;
+            const sortOrder = req.query.sortOrder;
+            if(sortField && sortOrder) {
+                sortObj[sortField] = sortOrder
+            }
             const query = { sellerEmail: req.query.email };
-            const result = await bidsCollections.find(query).toArray();
+            const result = await bidsCollections.find(query).sort(sortObj).toArray();
             res.send(result);
         })
 
